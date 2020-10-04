@@ -8,11 +8,9 @@ import kr.taggle.alarmbot.client.dto.WebHookRequest;
 import kr.taggle.alarmbot.client.scheduler.config.MessageProperties;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 @RequiredArgsConstructor
 @Component
-@Setter
 @Getter
 public class AlarmScheduler {
     private final SlackClientAPI slackClientAPI;
@@ -52,14 +50,6 @@ public class AlarmScheduler {
 
     @Scheduled(cron = "${slack.alarm.cron.off-work}", zone= "Asia/Seoul")
     public void alarmToNextDayWorker() {
-        final WebHookRequest webHookRequest = WebHookRequest.builder()
-                .text(messageProperties.getOffWork())
-                .build();
-        slackClientAPI.send(webHookRequest);
-    }
-
-    @Scheduled(cron = "${slack.alarm.cron.what}", zone= "Asia/Seoul")
-    public void yes() {
         final WebHookRequest webHookRequest = WebHookRequest.builder()
                 .text(messageProperties.getOffWork())
                 .build();
