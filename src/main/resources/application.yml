@@ -1,0 +1,16 @@
+slack:
+  alarm:
+    cron:
+      monday-daily: 0 45 12 * * MON
+      other-daily: 0 45 9 * * TUE-FRI
+      monday-time-schedule: 0 0 13-17 * * MON
+      other-time-schedule: 0 0 10-17 * * TUE-FRI
+      off-work: 0 0 18 * * MON-FRI
+    message:
+      daily: 굿모닝! 오늘 데일리 담당자는 데일리를 위한 행아웃 링크를 만들어주세요!
+      time-schedule: 정각 땡! 전원 한 시간 동안 할 일을 Notion 타임 테이블에 등록해주세요!
+      off-work: 퇴근시간! 모두 고생 많았습니다. ETC 담당자는 다음날 Notion 타임 테이블을 추가해주세요!
+spring:
+  profiles:
+    include:
+      - hook
