@@ -1,9 +1,9 @@
 package kr.taggle.alarmbot.role.domain;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -31,9 +31,9 @@ public class MemberRolesRepository {
 
     private Map<LocalDate, MemberRoles> loadRoleData() throws IOException {
         final Resource resource = applicationContext.getResource(DEFAULT_ROLE_DATA_CLASS_PATH);
-        final File file = resource.getFile();
-        FileReader filereader = new FileReader(file);
-        BufferedReader bufReader = new BufferedReader(filereader);
+        final InputStream inputStream = resource.getInputStream();
+        final InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+        BufferedReader bufReader = new BufferedReader(inputStreamReader);
         return bufReader.lines().collect(Collectors.toMap(this::parseDateForKey, this::parseRolesForValue));
     }
 
@@ -49,7 +49,8 @@ public class MemberRolesRepository {
     }
 
     private LocalDate parseDateForKey(String data) {
-        return LocalDate.parse(data.split(DEFAULT_DATA_SEPARATOR)[0], DateTimeFormatter.ofPattern(DEFAULT_DATE_PATTERN));
+        return LocalDate.parse(data.split(DEFAULT_DATA_SEPARATOR)[0],
+                DateTimeFormatter.ofPattern(DEFAULT_DATE_PATTERN));
     }
 
     public MemberRoles findRoleByCurrentDay() {
