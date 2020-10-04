@@ -19,7 +19,7 @@ public class MemberRolesRepository {
     private static final String SERVER_ZONE = "Asia/Seoul";
     private static final String DEFAULT_DATE_PATTERN = "yyyyMMdd";
     private static final String DEFAULT_DATA_SEPARATOR = " ";
-    private static final String DEFAULT_ROLE_DATA_CLASS_PATH = "classpath:role.txt";
+    private static final String DEFAULT_ROLE_DATA_CLASS_PATH = "classpath:config/role.txt";
 
     private final ApplicationContext applicationContext;
     private final Map<LocalDate, MemberRoles> roleTables;
