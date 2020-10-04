@@ -9,9 +9,9 @@ import lombok.Setter;
 @Setter
 @Getter
 @Configuration
-@ConfigurationProperties(prefix = "slack.alarm.message")
-public class MessageProperties {
-    private String daily;
+@ConfigurationProperties(prefix = "slack.alarm.message.title")
+public class TitleProperties {
+    private String role;
     private String timeSchedule;
     private String offWork;
 }

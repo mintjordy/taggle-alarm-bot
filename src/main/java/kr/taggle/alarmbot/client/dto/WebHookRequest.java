@@ -1,16 +1,14 @@
 package kr.taggle.alarmbot.client.dto;
 
+import java.util.List;
+
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class WebHookRequest {
-    private String text;
-
-    @Builder
-    public WebHookRequest(String text) {
-        this.text = text;
-    }
+    private final List<AttachmentRequest> attachments;
 }

@@ -1,11 +1,22 @@
 package kr.taggle.alarmbot.client.scheduler;
 
+import static java.time.format.DateTimeFormatter.*;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import kr.taggle.alarmbot.client.SlackClientAPI;
-import kr.taggle.alarmbot.client.dto.WebHookRequest;
-import kr.taggle.alarmbot.client.scheduler.config.MessageProperties;
+import kr.taggle.alarmbot.client.dto.AttachmentRequest;
+import kr.taggle.alarmbot.client.scheduler.config.PreTextProperties;
+import kr.taggle.alarmbot.client.scheduler.config.TextProperties;
+import kr.taggle.alarmbot.client.scheduler.config.TitleLinkProperties;
+import kr.taggle.alarmbot.client.scheduler.config.TitleProperties;
+import kr.taggle.alarmbot.role.MemberRolesService;
+import kr.taggle.alarmbot.utils.MarkdownParser;
+import kr.taggle.alarmbot.utils.OutputRoleParser;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -13,46 +24,79 @@ import lombok.RequiredArgsConstructor;
 @Component
 @Getter
 public class AlarmScheduler {
+    private static final String SERVER_ZONE = "Asia/Seoul";
+    private static final String GREEN_COLOR = "#36a64f";
+    private static final String TODAY_FORMAT = LocalDate.now().format(ofPattern("MM월 dd일"));
+    private static final String CURRENT_HOUR = LocalTime.now().format(ofPattern("hh시"));
+
     private final SlackClientAPI slackClientAPI;
-    private final MessageProperties messageProperties;
+    private final MemberRolesService memberRolesService;
+    private final TitleProperties titleProperties;
+    private final TitleLinkProperties titleLinkProperties;
+    private final TextProperties textProperties;
+    private final PreTextProperties preTextProperties;
 
-    @Scheduled(cron = "${slack.alarm.cron.monday-daily}", zone= "Asia/Seoul")
+    @Scheduled(cron = "${slack.alarm.cron.monday-daily}", zone = SERVER_ZONE)
     public void alarmToMakeDailyLinkAtMonday() {
-        final WebHookRequest webHookRequest = WebHookRequest.builder()
-                .text(messageProperties.getDaily())
+        final AttachmentRequest attachmentRequest = AttachmentRequest.builder()
+                .color(GREEN_COLOR)
+                .pretext(MarkdownParser.toChannel(String.format(preTextProperties.getRole(), TODAY_FORMAT)))
+                .title(titleProperties.getRole())
+                .title_link(titleLinkProperties.getRole())
+                .text(parseDailyMessage())
                 .build();
-        slackClientAPI.send(webHookRequest);
+        slackClientAPI.send(attachmentRequest.toWebHookRequest());
     }
 
-    @Scheduled(cron = "${slack.alarm.cron.other-daily}", zone= "Asia/Seoul")
+    @Scheduled(cron = "${slack.alarm.cron.other-daily}", zone = SERVER_ZONE)
     public void alarmToMakeDailyLink() {
-        final WebHookRequest webHookRequest = WebHookRequest.builder()
-                .text(messageProperties.getDaily())
+        final AttachmentRequest attachmentRequest = AttachmentRequest.builder()
+                .color(GREEN_COLOR)
+                .pretext(MarkdownParser.toChannel(String.format(preTextProperties.getRole(), TODAY_FORMAT)))
+                .title(titleProperties.getRole())
+                .title_link(titleLinkProperties.getRole())
+                .text(parseDailyMessage())
                 .build();
-        slackClientAPI.send(webHookRequest);
+        slackClientAPI.send(attachmentRequest.toWebHookRequest());
     }
 
-    @Scheduled(cron = "${slack.alarm.cron.monday-time-schedule}", zone= "Asia/Seoul")
+    private String parseDailyMessage() {
+        return OutputRoleParser.parseMemberRoles(memberRolesService.findCurrentDayRoles());
+    }
+
+    @Scheduled(cron = "${slack.alarm.cron.monday-time-schedule}", zone = SERVER_ZONE)
     public void alarmToAddTimeScheduleAtMonday() {
-        final WebHookRequest webHookRequest = WebHookRequest.builder()
-                .text(messageProperties.getTimeSchedule())
+        final AttachmentRequest attachmentRequest = AttachmentRequest.builder()
+                .color(GREEN_COLOR)
+                .pretext(MarkdownParser.toChannel(String.format(preTextProperties.getTimeSchedule(), CURRENT_HOUR)))
+                .title(titleProperties.getTimeSchedule())
+                .title_link(titleLinkProperties.getTimeSchedule())
+                .text(textProperties.getTimeSchedule())
                 .build();
-        slackClientAPI.send(webHookRequest);
+        slackClientAPI.send(attachmentRequest.toWebHookRequest());
     }
 
-    @Scheduled(cron = "${slack.alarm.cron.other-time-schedule}", zone= "Asia/Seoul")
+    @Scheduled(cron = "${slack.alarm.cron.other-time-schedule}", zone = SERVER_ZONE)
     public void alarmToAddTimeSchedule() {
-        final WebHookRequest webHookRequest = WebHookRequest.builder()
-                .text(messageProperties.getTimeSchedule())
+        final AttachmentRequest attachmentRequest = AttachmentRequest.builder()
+                .color(GREEN_COLOR)
+                .pretext(MarkdownParser.toChannel(String.format(preTextProperties.getTimeSchedule(), CURRENT_HOUR)))
+                .title(titleProperties.getTimeSchedule())
+                .title_link(titleLinkProperties.getTimeSchedule())
+                .text(textProperties.getTimeSchedule())
                 .build();
-        slackClientAPI.send(webHookRequest);
+        slackClientAPI.send(attachmentRequest.toWebHookRequest());
     }
 
-    @Scheduled(cron = "${slack.alarm.cron.off-work}", zone= "Asia/Seoul")
+    @Scheduled(cron = "${slack.alarm.cron.off-work}", zone = SERVER_ZONE)
     public void alarmToNextDayWorker() {
-        final WebHookRequest webHookRequest = WebHookRequest.builder()
-                .text(messageProperties.getOffWork())
+        final AttachmentRequest attachmentRequest = AttachmentRequest.builder()
+                .color(GREEN_COLOR)
+                .pretext(MarkdownParser.toChannel(preTextProperties.getOffWork()))
+                .title(titleProperties.getOffWork())
+                .title_link(titleLinkProperties.getTimeSchedule())
+                .text(textProperties.getOffWork())
                 .build();
-        slackClientAPI.send(webHookRequest);
+        slackClientAPI.send(attachmentRequest.toWebHookRequest());
     }
 }
