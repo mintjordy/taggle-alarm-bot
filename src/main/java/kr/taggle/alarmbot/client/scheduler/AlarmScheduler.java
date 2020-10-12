@@ -2,8 +2,8 @@ package kr.taggle.alarmbot.client.scheduler;
 
 import static java.time.format.DateTimeFormatter.*;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -26,8 +26,8 @@ import lombok.RequiredArgsConstructor;
 public class AlarmScheduler {
     private static final String SERVER_ZONE = "Asia/Seoul";
     private static final String GREEN_COLOR = "#36a64f";
-    private static final String TODAY_FORMAT = LocalDate.now().format(ofPattern("MM월 dd일"));
-    private static final String CURRENT_HOUR = LocalTime.now().format(ofPattern("hh시"));
+    private static final DateTimeFormatter TODAY_FORMAT = ofPattern("MM월 dd일");
+    private static final DateTimeFormatter CURRENT_HOUR_FORMAT = ofPattern("hh시");
 
     private final SlackClientAPI slackClientAPI;
     private final MemberRolesService memberRolesService;
@@ -40,7 +40,7 @@ public class AlarmScheduler {
     public void alarmToMakeDailyLinkAtMonday() {
         final AttachmentRequest attachmentRequest = AttachmentRequest.builder()
                 .color(GREEN_COLOR)
-                .pretext(MarkdownParser.toChannel(String.format(preTextProperties.getRole(), TODAY_FORMAT)))
+                .pretext(MarkdownParser.toChannel(String.format(preTextProperties.getRole(), parseTodayFormat())))
                 .title(titleProperties.getRole())
                 .title_link(titleLinkProperties.getRole())
                 .text(parseDailyMessage())
@@ -52,7 +52,7 @@ public class AlarmScheduler {
     public void alarmToMakeDailyLink() {
         final AttachmentRequest attachmentRequest = AttachmentRequest.builder()
                 .color(GREEN_COLOR)
-                .pretext(MarkdownParser.toChannel(String.format(preTextProperties.getRole(), TODAY_FORMAT)))
+                .pretext(MarkdownParser.toChannel(String.format(preTextProperties.getRole(), parseTodayFormat())))
                 .title(titleProperties.getRole())
                 .title_link(titleLinkProperties.getRole())
                 .text(parseDailyMessage())
@@ -68,7 +68,7 @@ public class AlarmScheduler {
     public void alarmToAddTimeScheduleAtMonday() {
         final AttachmentRequest attachmentRequest = AttachmentRequest.builder()
                 .color(GREEN_COLOR)
-                .pretext(MarkdownParser.toChannel(String.format(preTextProperties.getTimeSchedule(), CURRENT_HOUR)))
+                .pretext(MarkdownParser.toChannel(String.format(preTextProperties.getTimeSchedule(), parseCurrentHourFormat())))
                 .title(titleProperties.getTimeSchedule())
                 .title_link(titleLinkProperties.getTimeSchedule())
                 .text(textProperties.getTimeSchedule())
@@ -80,7 +80,7 @@ public class AlarmScheduler {
     public void alarmToAddTimeSchedule() {
         final AttachmentRequest attachmentRequest = AttachmentRequest.builder()
                 .color(GREEN_COLOR)
-                .pretext(MarkdownParser.toChannel(String.format(preTextProperties.getTimeSchedule(), CURRENT_HOUR)))
+                .pretext(MarkdownParser.toChannel(String.format(preTextProperties.getTimeSchedule(), parseCurrentHourFormat())))
                 .title(titleProperties.getTimeSchedule())
                 .title_link(titleLinkProperties.getTimeSchedule())
                 .text(textProperties.getTimeSchedule())
@@ -98,5 +98,13 @@ public class AlarmScheduler {
                 .text(textProperties.getOffWork())
                 .build();
         slackClientAPI.send(attachmentRequest.toWebHookRequest());
+    }
+
+    private String parseTodayFormat() {
+        return LocalDateTime.now().format(TODAY_FORMAT);
+    }
+
+    private String parseCurrentHourFormat() {
+        return LocalDateTime.now().format(CURRENT_HOUR_FORMAT);
     }
 }
